@@ -1,0 +1,217 @@
+*timstamp.txt*  Global plugin for automated time stamping
+
+The timstamp general plugin provides automated time-stamping functionality.
+
+1. General		    |timstamp_general|
+2. Specification format	    |timstamp_specformat|
+3. Default specs	    |timstamp_default_specs|
+4. Control variables	    |timstamp_control|
+
+==============================================================================
+
+1. General						*timstamp_general*
+
+Whenever a file is written, this plugin will look for 'Time-stamp lines'
+amongst the first and last lines of the file to be written. If any of these
+lines contain e.g. ' Time stamp:' or 'Last change:', the plugin will update
+these lines before writing the file.
+
+The plugin is fully controlled by the user. It does provide two standard
+'Time-stamp line' specifications as well as their replacement spec. The user
+can add additional values as well as remove the default values.
+
+The plugin and its documentation file can be installed as described under
+|add-global-plugin| and |add-local-help|. Do not forget to run |:helptags|.
+
+==============================================================================
+
+2. Specification format					*timstamp_specformat*
+
+The specification format for a time-stamp line consists of the {pat} and {sub}
+parts required to build the desired substitute command. These {pat} and {sub} 
+parts must be separated by a "!" character.
+
+An examplespec may clarify this: "( Last changed:\).*$!\1 %Y %b %d".
+The {pat} part instructs the plugin to look for any line that ends on
+' Last changed: ...'.
+
+The {sub} part is passed on to |strftime()|, which (at least at the time I am
+writing this) translates "%Y %b %d" into "2002 Aug 11". Of course, these would
+be the values at the time of the plugin execution, which is the moment before
+writing the file. Any % tokens known by your version of |strftime()| can be 
+used.
+    
+Additionally, some # tokens have been defined by the plugin. These are
+replaced by their corresponding value after |strftime()| processing and 
+before performing the actual substitutions:
+
+    #f	filename    |timstamp_filename|
+    #h  hostname    |timstamp_hostname|
+    #H  Hostname    |timstamp_Hostname|
+    #n  username    |timstamp_username|
+    #u  userid	    |timstamp_userid|
+
+#f  filename						*timstamp_filename*
+
+    The #f token is replaced by the filename of the current buffer. This is a
+    name without any path components.
+
+#h  hostname						*timstamp_hostname*
+
+    The #h token is replaced by the hostname of the current vim process. 
+   
+    The user can specify the desired value with the glabal variable
+    g:timstamp_hostname. If that variable does not exist, the value of the
+    $HOSTNAME environment variable will be used. If there is no $HOSTNAME, the
+    output of the hostname() function is used. However, only the last word
+    returned by that function is preserved. The platform type of qualifier
+    (e.g. PC) is not kept.
+
+#H  Hostname						*timstamp_Hostname*
+
+    The #H token is also replaced by the hostname. However, the platform
+    qualifier is not removed.
+
+#n  username						*timstamp_username*
+
+    The #n token will be replaced by the user name. This will be obtained from
+    the g:timstamp_username variable if it exists. Otherwise, it is
+    initialised from the $USERNAME environment variable.    
+
+#u  userid						*timstamp_userid*
+
+    The #u token will be replaced by the userid. This will be obtained from
+    the g:timstamp_userid variable if it exists. Otherwise, it is
+    initialised from the $LOGNAME environment variable. 
+    
+==============================================================================
+
+3. Default specs				    *timstamp_default_specs*
+
+The plugin defines two default specs, which can be overwritten by the user:
+
+    Last Change Spec   |timstamp_last_change_spec|
+    Time Stamp spec    |timstamp_time_stamp_spec|
+    
+3.1. Last Change Spec				*timstamp_last_change_spec*
+	
+    The last change spec has following default value:
+
+    '\( Last \?\(changed\?\|modified\):\).*$!\1 %Y %b %d' 
+	
+    which can be overruled by providing a different value in the 
+    g:timstamp_1 variable.
+
+    The {pat} part is '\( Last \?\(changed\?\|modified\):\).*$'. This will 
+    process lines containing ' Last changed', ' Last modified' or its 
+    variations.
+
+    The {sub} part is '\1 %Y %b %d'. This will preserve the ' Last ...:' 
+    string and replace the remainder with the current 4 digit year, 
+    the short month name and the day of month. 
+
+    This file contains a 'Last Change' line at |timstamp_examples|.
+	
+3.2. Time Stamp spec				    *timstamp_time_stamp_spec*
+
+    The time stamp spec is a bit more complex:
+
+	'\( Time[- ]\?stamp:\).*$!\1 <#f %a %Y/%m/%d %H:%M:%S #u #h>'
+
+    and can be overruled by defining the global g:timstamp_2 variable.
+
+    The {pat} part is shorter: '\( Time[- ]\?stamp: \)<.*>$'. It will trigger 
+    on lines containing ' Time-stamp', ' Time stamp' or ' Timestamp'
+    immediately followed by a ':'.
+
+    The {sub} part is '\1 <#f %a %Y/%m/%d %H:%M:%S #u #h>'. This will 
+    preserve the ' Time...:' string, and replace the remainder of the line 
+    with e.g. ' <timstamp.txt Sun 2002/08/11 13:03:01 guivho BTM4BZ>'. Please
+    refer to the |timstamp_specformat| above for the # tokens.
+
+    This file contains a 'Time stamp' line at |timstamp_examples|.
+
+==============================================================================
+
+4. Control variables					*timstamp_control*
+
+The plugin can be fully controlled by the user. Each of the internal variables
+that control the operation, can be overruled by providing a corresponding
+global value.
+
+    g:timstamp_1, 
+    g:timstamp_2, 
+    g:timstamp_...	    |timstamp_specs|
+    g:timstamp_automask	    |timstamp_automask|
+    g:timstamp_hostname	    |timstamp_hostname|
+    g:timstamp_Hostname	    |timstamp_Hostname|
+    g:timstamp_ignorecase   |timstamp_ignorecase|
+    g:timstamp_language	    |timstamp_language|
+    g:timstamp_modelines    |timstamp_modelines|
+    g:timstamp_userid	    |timstamp_userid|
+    g:timstamp_username	    |timstamp_username|
+
+4.1. g:timstamp_1, g:timstamp_2, g:timstamp_...		    *timstamp_specs*
+
+The |timstamp_default_specs| section has described the two default specs
+provided by the plugin. It should be well understood that the user may overrule
+their value by defining a g:timstamp_1 and / or a g:timstamp_2 variable. The
+user can add additional specs, e.g. a g:timstamp_3 etc... Note that the first
+empty or not existing spec will terminate processing.
+
+If e.g. a g:timstamp_3 has been defined, but g:timstamp_2 has been set to "" 
+processing will not continue beyond g:timstamp_2. On the other hand, if the
+first two specs are non empty (either while they have not been overruled, or 
+as they have been replaced by a non empty value), processing will continue 
+with g:timstamp_3, g:timstamp_4, g:timstamp_5 ... as long as each consecutive 
+variable exists and has a non empty value.
+
+4.2. g:timstamp_automask				*timstamp_automask*
+
+By default, the plugin installs an "autocommand BufWrite" for all files. So it
+uses '*' as {pat} (cfr |:autocmd|). The user can overrule this behaviour by
+defining g:timstamp_automask with the desired value, e.g.:
+
+    :let g:timstamp_automask = "*.html"
+>
+to limit timestamping to html files.
+
+4.3. g:timstamp_hostname			    Cfr |timstamp_hostname|.
+
+4.4. g:timstamp_Hostname			    Cfr |timstamp_Hostname|.
+
+4.5. g:timstamp_ignorecase				*timstamp_ignorecase*
+
+The plugin ignores case when performing the eventual substitution. 
+So ' lAsT cHanGe:' is as valid as ' Last Change:'. The user can prevent this
+by defining global variable g:timstamp_ignorecase to an empty value: <
+
+    :let g:timstamp_ignorecase = ""
+>
+
+4.6. g:timstamp_language				*timstamp_language*
+
+The plugin assumes that one usually wants english timestamps. By default it
+executes a ':language time en' to achieve this. The user can specify a
+different language to be used by means of the g:timstamp_language variable.
+
+
+4.7. g:timstamp_modelines				*timstamp_modelines*
+
+The plugin uses the value of the |'modelines'| option to define the number of
+head or tail lines to be taken into account. The user can specify a different
+value by means of the g:timstamp_modelines variable. This can even be set to
+'$' if all file lines have to be taken into account.
+
+4.8. g:timstamp_userid				    Cfr |timstamp_userid|
+
+4.9. g:timstamp_username			    Cfr |timstamp_username|
+
+==============================================================================
+
+							*timstamp_examples*
+ Version: 0.9
+ Last change: 2002 Aug 11
+ Timestamp: <timstamp.txt Sun 2002/08/11 15:03:26 guivho BTM4BZ>
+ Maintainer: Guido Van Hoecke <Guido@VanHoecke.org>
+ vim:tw=78:sw=4:ts=8:ft=help:norl:
