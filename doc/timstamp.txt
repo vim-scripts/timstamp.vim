@@ -1,4 +1,4 @@
-*timstamp.txt*  Global plugin for automated time stamping
+*timstamp.txt*  Global plugin for automated time stamping - v0.95
 
 The timstamp general plugin provides automated time-stamping functionality.
 
@@ -160,7 +160,7 @@ required in the .vimrc file.
 However the user may overrule these default values by defining a g:timstamp_1
 and / or a g:timstamp_2 variable, e.g:
 
-    :let g_timstamp_1='\( Last change:\).*$!\1 %A %Y %b %d'
+    :let g:timstamp_1='\( Last change:\).*$!\1 %A %Y %b %d'
     
 if the user would always want to include the day of the week as in
 
@@ -168,7 +168,7 @@ if the user would always want to include the day of the week as in
 
 The user can add additional specs, e.g. a g:timstamp_3 etc... :
 
-    :let g_timstamp_3='\( Last messed up at:\).*$\1 %Y %b %d'
+    :let g:timstamp_3='\( Last messed up at:\).*$\1 %Y %b %d'
 
 for those files that are still in early development? :-)
     
@@ -229,8 +229,8 @@ Be aware that this would change any line that matches any of your
 ==============================================================================
 
 							*timstamp_examples*
- Version: 0.94
- Last change: 2002 Aug 15
- Timestamp: <timstamp.txt Thu 2002/08/15 18:14:19 guivho BTM4BZ>
+ Version: 0.95
+ Last change: 2003 Feb 13
+ Timestamp: <timstamp.txt Thu 2003/02/13 22:58:16  MSDOG>
  Maintainer: Guido Van Hoecke <Guido@VanHoecke.org>
  vim:tw=78:sw=4:ts=8:ft=help:norl:

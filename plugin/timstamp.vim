@@ -1,10 +1,17 @@
-" Vim global plugin for automated time stamping
-" Last Change: 2002 Aug 15
-" Timestamp: <timstamp.vim Thu 2002/08/15 18:14:14 guivho BTM4BZ>
+" Vim global plugin for automated time stamping - v0.95
+" Last Change: 2003 Feb 13
+" Timestamp: <timstamp.vim Thu 2003/02/13 22:57:13  MSDOG>
 " Maintainer: Guido Van Hoecke <Guido@VanHoecke.org>
 " Description: Cfr separate 'timstamp.txt' help file
-" Version: 0.94
+" License: This file is placed in the public domain.
 " History: 
+    " 0.95
+	" 1) Replaced s:filename() by call to builtin fnamemodify()
+	" 2) Added license statement
+	" 3) Now processes g:timstamp_3 etc by copying them into 
+	"    s:timestamp_3 at the beginning of the script
+	"    (Thanks to Norihiko Murase)
+	" 4) Fixed two documentation typos (Thanks to Norihiko Murase)
     " 0.94 
 	" 1) Added a missing 'let' in an assignment statement.
 	"    (reported by Luis Jure)
@@ -60,6 +67,14 @@ let s:timstamp_1 = s:getValue( '\( Last \?\(changed\?\|modified\):\).*$'
 let s:timstamp_2 = s:getValue('\( Time[- ]\?stamp:\).*$'
 	\ . '!\1 <#f %a %Y/%m/%d %H:%M:%S #u #h>', "g:timstamp_2")
 
+" copy remaining user-specified g:timestamp_n masks
+let indx = 3
+while exists("g:timstamp_" . indx)
+    let work = "let s:timstamp_" . indx . "= g:timstamp_" . indx
+    exe work
+    let indx = indx + 1
+endwhile
+
 " Control variables that could be overruled by the user: 
 let s:automask   = s:getValue("*", "g:timstamp_automask")
 let s:hostname   = s:getValue(substitute(hostname(), ".* ", "", ""), 
@@ -70,12 +85,6 @@ let s:language   = s:getValue("en", "g:timstamp_language")
 let s:modelines  = s:getValue(&modelines, "g:timstamp_modelines")
 let s:userid     = s:getValue($LOGNAME, "g:timstamp_userid")
 let s:username   = s:getValue($USERNAME, "g:timstamp_username")
-
-function! s:filename()
-    " Function returns the filename of the current buffer
-    " without any of the path components
-    return substitute(bufname(""), ".*[\\\/]", "", "")
-endfunction
 
 function! s:stamper(mask)
     " does the actual timestamp substitution for each of the 
@@ -94,7 +103,7 @@ function! s:stamper(mask)
 	    let mask = strpart(mask, 0, idx) . str2
 	endif
     endif
-    let mask = substitute(mask, "#f", s:filename(), "g")
+    let mask = substitute(mask, "#f", fnamemodify(bufname(""), ":p:t"), "g")
     let mask = substitute(mask, "#h", s:hostname, "g")
     let mask = substitute(mask, "#H", s:Hostname, "g")
     let mask = substitute(mask, "#n", s:username, "g")
