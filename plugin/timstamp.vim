@@ -1,12 +1,17 @@
 " Vim global plugin for automated time stamping
-" Last Change: 2002 Aug 11
-" Timestamp: <timstamp.vim Sun 2002/08/11 20:46:37 guivho BTM4BZ>
+" Last Change: 2002 Aug 12
+" Timestamp: <timstamp.vim Mon 2002/08/12 18:22:09 guivho BTM4BZ>
 " Maintainer: Guido Van Hoecke <Guido@VanHoecke.org>
 " Description: Cfr separate 'timstamp.txt' help file
-" Version: 0.91
+" Version: 0.92
 " History: 
+    " 0.92 now uses the line("$") function to test for short files
+	" and limits the modifications to the specified nr of lines
+	" rather than that number plus one extra line
+	" (Thanks to Piet Delport)
     " 0.91 now preserves cursor location, is silent! about language
 	 " setting, and does no longer choke on short files 
+	 " (Thanks to Rimon Barr)
 
 " provide load control
     if exists("loaded_timstamp")
@@ -69,13 +74,10 @@ function! s:stamper(mask)
     let mask = substitute(mask, "#H", s:Hostname, "g")
     let mask = substitute(mask, "#n", s:username, "g")
     let mask = substitute(mask, "#u", s:userid, "g")
-    "position cursor on line s:modelines, or on the last existing line
-    exe ':normal gg' . s:modelines . 'j'
-    exe '1,.s!' . mask . '!e' . s:ignorecase
-    if s:modelines != "$"
-	"position cursor on line $-s:modelines, or on the first existing line
-	exe ':normal G' . s:modelines . 'k'
-	exe '.,$s!' . mask . '!e' . s:ignorecase
+    let mask = 's!' . mask . '!e' . s:ignorecase
+    exe 'silent! ' . s:range1 . mask
+    if s:range2 != ""
+	exe 'silent! ' . s:range2 . mask
     endif
 endfunction
 
@@ -85,6 +87,20 @@ function! s:timeStamper()
     let language =  v:lc_time " preserve it
     exe ":normal msHmt"
     exe ":silent! language time " . s:language
+    if s:modelines == '$'
+	s:modelines = line('$')
+    endif
+    if line('$') > s:modelines
+	let s:range1 = '1,' . s:modelines
+	if line('$') >= ( 2 * s:modelines )
+	    let s:range2 = '$+1-' . s:modelines . ',$'
+	else
+	    let s:range2 = s:modelines . '+1,$'
+	endif
+    else
+	let s:range1 = '%'
+	let s:range2 = ''
+    endif
     let indx = 1
     while exists("s:timstamp_" . indx)
 	let work = "let mask = s:timstamp_" . indx
