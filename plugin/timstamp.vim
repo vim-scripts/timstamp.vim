@@ -1,10 +1,18 @@
 " Vim global plugin for automated time stamping
 " Last Change: 2002 Aug 15
-" Timestamp: <timstamp.vim Thu 2002/08/15 00:08:12 guivho BTM4BZ>
+" Timestamp: <timstamp.vim Thu 2002/08/15 18:14:14 guivho BTM4BZ>
 " Maintainer: Guido Van Hoecke <Guido@VanHoecke.org>
 " Description: Cfr separate 'timstamp.txt' help file
-" Version: 0.93
+" Version: 0.94
 " History: 
+    " 0.94 
+	" 1) Added a missing 'let' in an assignment statement.
+	"    (reported by Luis Jure)
+	" 2) Added additional warning in the help file about 
+	"    '$' value for g:timstamp_modelines. 
+	"    Cfr :h timstamp_modelines
+	" 3) Corrected s:filename() to also work with dos slashes
+	"    (thanks to Richard Bair)
     " 0.93 Now only presents the %token part of the spec to 
 	" strftime(): this seems to provide correct results, 
 	" even when using %Z to add the timezone followed by '>'
@@ -66,7 +74,7 @@ let s:username   = s:getValue($USERNAME, "g:timstamp_username")
 function! s:filename()
     " Function returns the filename of the current buffer
     " without any of the path components
-    return substitute(bufname(""), ".*[\/]", "", "")
+    return substitute(bufname(""), ".*[\\\/]", "", "")
 endfunction
 
 function! s:stamper(mask)
@@ -105,7 +113,7 @@ function! s:timeStamper()
     exe ":normal msHmt"
     exe ":silent! language time " . s:language
     if s:modelines == '$'
-	s:modelines = line('$')
+	let s:modelines = line('$')
     endif
     if line('$') > s:modelines
 	let s:range1 = '1,' . s:modelines
