@@ -1,10 +1,15 @@
 " Vim global plugin for automated time stamping
-" Last Change: 2002 Aug 12
-" Timestamp: <timstamp.vim Mon 2002/08/12 18:22:09 guivho BTM4BZ>
+" Last Change: 2002 Aug 15
+" Timestamp: <timstamp.vim Thu 2002/08/15 00:08:12 guivho BTM4BZ>
 " Maintainer: Guido Van Hoecke <Guido@VanHoecke.org>
 " Description: Cfr separate 'timstamp.txt' help file
-" Version: 0.92
+" Version: 0.93
 " History: 
+    " 0.93 Now only presents the %token part of the spec to 
+	" strftime(): this seems to provide correct results, 
+	" even when using %Z to add the timezone followed by '>'
+	" The helpfile has been extended with aome example specs.
+	" (error and help reported/requested by Adrian Nagle)
     " 0.92 now uses the line("$") function to test for short files
 	" and limits the modifications to the specified nr of lines
 	" rather than that number plus one extra line
@@ -68,7 +73,19 @@ function! s:stamper(mask)
     " does the actual timestamp substitution for each of the 
     " specified timstamp_n masks
     let mask = a:mask
-    let mask = strftime(mask)
+    let idx = stridx(mask, '%')
+    if idx >= 0
+    	let str1 = strpart(mask, idx)
+	let ridx = strridx(str1, '%')
+	if ridx >= 0 
+	    if ridx < strlen(str1)
+		let str2 = strpart(str1, 0,  ridx + 2)
+		let str3 = strpart(str1, ridx + 2)
+		let str2 = strftime(str2) . str3
+	    endif
+	    let mask = strpart(mask, 0, idx) . str2
+	endif
+    endif
     let mask = substitute(mask, "#f", s:filename(), "g")
     let mask = substitute(mask, "#h", s:hostname, "g")
     let mask = substitute(mask, "#H", s:Hostname, "g")
