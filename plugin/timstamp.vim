@@ -1,9 +1,12 @@
 " Vim global plugin for automated time stamping
 " Last Change: 2002 Aug 11
-" Timestamp: <timstamp.vim Sun 2002/08/11 15:02:56 guivho BTM4BZ>
+" Timestamp: <timstamp.vim Sun 2002/08/11 20:46:37 guivho BTM4BZ>
 " Maintainer: Guido Van Hoecke <Guido@VanHoecke.org>
 " Description: Cfr separate 'timstamp.txt' help file
-" Version: 0.9
+" Version: 0.91
+" History: 
+    " 0.91 now preserves cursor location, is silent! about language
+	 " setting, and does no longer choke on short files 
 
 " provide load control
     if exists("loaded_timstamp")
@@ -66,17 +69,22 @@ function! s:stamper(mask)
     let mask = substitute(mask, "#H", s:Hostname, "g")
     let mask = substitute(mask, "#n", s:username, "g")
     let mask = substitute(mask, "#u", s:userid, "g")
-    exe '1,'  . s:modelines . 's!' . mask . '!e' . s:ignorecase
+    "position cursor on line s:modelines, or on the last existing line
+    exe ':normal gg' . s:modelines . 'j'
+    exe '1,.s!' . mask . '!e' . s:ignorecase
     if s:modelines != "$"
-	exe '$-1' . s:modelines . ',$' . 's!' . mask . '!e' . s:ignorecase
+	"position cursor on line $-s:modelines, or on the first existing line
+	exe ':normal G' . s:modelines . 'k'
+	exe '.,$s!' . mask . '!e' . s:ignorecase
     endif
 endfunction
 
 function! s:timeStamper()
-    " loops iver the specified timstamp_n masks and calls upon
+    " loops over the specified timstamp_n masks and calls upon
     " s:stamper to process each of them
     let language =  v:lc_time " preserve it
-    exe ":language time " . s:language
+    exe ":normal msHmt"
+    exe ":silent! language time " . s:language
     let indx = 1
     while exists("s:timstamp_" . indx)
 	let work = "let mask = s:timstamp_" . indx
@@ -88,7 +96,8 @@ function! s:timeStamper()
 	let indx = indx + 1
     endwhile
     " restore preserved language
-    exe ":language time " . language
+    exe ":silent! language time " . language
+    exe ":normal 'tzt`s"
 endfunction
 	
 let s:autocomm   = "autocmd BufWrite " . s:automask . " :call s:timeStamper()"

@@ -210,8 +210,8 @@ value by means of the g:timstamp_modelines variable. This can even be set to
 ==============================================================================
 
 							*timstamp_examples*
- Version: 0.9
+ Version: 0.91
  Last change: 2002 Aug 11
- Timestamp: <timstamp.txt Sun 2002/08/11 15:03:26 guivho BTM4BZ>
+ Timestamp: <timstamp.txt Sun 2002/08/11 20:47:38 guivho BTM4BZ>
  Maintainer: Guido Van Hoecke <Guido@VanHoecke.org>
  vim:tw=78:sw=4:ts=8:ft=help:norl:
